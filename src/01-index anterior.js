@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import Note from "./components/Note";
-import noteService from './services/notes'
 import axios from "axios";
 
 // const notes = [
@@ -34,43 +33,22 @@ import axios from "axios";
 // const promise2 = axios.get('http://localhost:3001/foobar')
 // console.log(promise2)
 
-const App = () => {
-  const [notes, setNotes] = useState([]);
+const App = (props) => {
+  const [notes, setNotes] = useState(props.notes);
   const [newNote, setNewNote] = useState("");
   const [showAll, setShowAll] = useState(true);
 
-  // useEffect(() => {
-  //   console.log("Effect");
+  useEffect(() => {
+    console.log("Effect");
 
-  //   axios
-  //   .get("http://localhost:3001/notes")
-  //   .then((res) => {
-  //     console.log('Promise  fulfilled')
-  //     setNotes(res.data)
-
-  //   });
-  // }, []);
-
-  
-  const hook = () => {
-    // console.log("Effect");
-
-    // axios
-    // .get("http://localhost:3001/notes")
-    // .then((res) => {
-    //   console.log('Promise  fulfilled')
-    //   setNotes(res.data)
-    // })
-
-    noteService
-    .getAll()
-    .then(resp =>{
-      setNotes(resp.data)
-    })
-}
-  
-  useEffect(hook, [])
-  console.log('render', notes.length, 'notes')
+    axios
+    .get("http://localhost:3001/notes")
+    .then((res) => {
+      console.log('Promise  fulfilled')
+      setNotes
+      console.log(notes);
+    });
+  }, [third]);
 
   const addNote = (event) => {
     event.preventDefault();
@@ -81,35 +59,10 @@ const App = () => {
       important: Math.random() < 0.5,
     };
 
-    // setNotes(notes.concat(noteObject));
-    // setNewNote("");
-    // console.log("notes", notes);
-    // axios 
-    // .post('http://localhost:3031/notes', noteObject)
-    // .then( resp => {
-    //   setNotes(notes.concat(resp.data))
-    //   setNewNote('')
-    // })
-
-
-    noteService 
-    .create(noteObject)
-    .then( resp => {
-      setNotes(notes.concat(resp.data))
-      setNewNote('')
-    })
-
+    setNotes(notes.concat(noteObject));
+    setNewNote("");
+    console.log("notes", notes);
   };
-
-  const Note = ({note, toggleImportance}) =>{
-    const label = note.important ? 'make not important': 'make important'
-    return(
-      <li>
-        {note.content}
-        <button onClick={toggleImportance}>{label}</button>
-      </li>
-    )
-  }
 
   const handleNoteChange = (event) => {
     console.log(event.target.value);
@@ -119,18 +72,6 @@ const App = () => {
   const notesToShow = showAll
     ? notes
     : notes.filter((note) => note.important === true);
-
-  const toggleImportanceOf = (id) =>{
-    // console.log(`importance of ${id} nees to be toogled`)
-    // const url = `http://localhost:3031/notes/${id}`
-    const note = notes.find( n => n.id === id)
-    const changedNote = {...note, important: !note.important}
-
-    noteService.update(url, changedNote).then(response =>{
-      setNotes(notes.map( note => note.id !== id ? note : response.data))
-    })
-  }
-
   return (
     <div>
       <h1>Notes</h1>
@@ -139,9 +80,7 @@ const App = () => {
       </button>
       <ul>
         {notesToShow.map((note) => (
-          <Note key={note.id} note={note} 
-          toggleImportance={() => toggleImportanceOf(note.id)}
-          />
+          <Note key={note.id} note={note} />
         ))}
       </ul>
       <form onSubmit={addNote}>
